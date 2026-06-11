@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-trace-viewer"
+version = "0.1.0"
+description = "Single-file HTML viewer for any LLM agent trace — LangChain, LangGraph, smolagents, raw Claude/OpenAI"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+authors = [
+    { name = "Pallavi Chandrashekar", email = "pallavi9964@gmail.com" }
+]
+keywords = ["llm", "agents", "observability", "langchain", "langgraph", "smolagents", "tracing"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = []
+
+[project.optional-dependencies]
+langchain = ["langchain-core>=0.1"]
+langgraph = ["langgraph>=0.0.40"]
+smolagents = ["smolagents>=1.0"]
+dev = ["pytest>=7.0", "pytest-cov>=4.0"]
+
+[project.scripts]
+agent-trace = "agent_trace_viewer.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/pallavi-chandrashekar/agent-trace-viewer"
+Repository = "https://github.com/pallavi-chandrashekar/agent-trace-viewer"
+Issues = "https://github.com/pallavi-chandrashekar/agent-trace-viewer/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent_trace_viewer"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
