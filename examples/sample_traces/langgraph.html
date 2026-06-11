@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>OpenAI — DataAssistant run · openai</title>
+<title>LangGraph — MRR analysis agent · langgraph</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -85,17 +85,17 @@
 </head>
 <body>
 <div class="container">
-  <h1>OpenAI — DataAssistant run</h1>
+  <h1>LangGraph — MRR analysis agent</h1>
   <div class="meta">
-    <span>run id <b>openai</b></span>
+    <span>run id <b>langgraph</b></span>
     <span>started <b>2026-06-11T21:58:00+00:00</b></span>
-    <span>11 events</span>
+    <span>6 events</span>
   </div>
   <div class="summary">
-    <div><b>7</b><span>steps</span></div><div><b>3</b><span>LLM calls</span></div><div><b>2</b><span>actions</span></div><div><b>488</b><span>input tokens</span></div><div><b>142</b><span>output tokens</span></div>
+    <div><b>3</b><span>steps</span></div><div><b>2</b><span>LLM calls</span></div><div><b>1</b><span>actions</span></div><div><b>850</b><span>input tokens</span></div><div><b>156</b><span>output tokens</span></div>
   </div>
   <div class="timeline">
-    <div class="step step-task">  <div class="step-header">    <span class="step-type">task</span>      </div>  <div class="step-body"><div><b>input:</b> <code>Find the customer with the highest lifetime value.</code></div></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>      </div>  <div class="step-body"><div><b>model:</b> <code>gpt-4o</code></div></div></div><div class="step step-action">  <div class="step-header">    <span class="step-type">action</span>      </div>  <div class="step-body"><div><b>tool:</b> <code>list_tables</code></div><div><b>input:</b> <code>{}</code></div></div></div><div class="step step-observation">  <div class="step-header">    <span class="step-type">observation</span>      </div>  <div class="step-body"><div><b>output:</b> <code>[&#x27;customers&#x27;, &#x27;orders&#x27;, &#x27;order_items&#x27;]</code></div></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>      </div>  <div class="step-body"><div><b>model:</b> <code>gpt-4o</code></div></div></div><div class="step step-plan">  <div class="step-header">    <span class="step-type">plan</span>      </div>  <div class="step-body"><div><b>plan:</b> <code>Now I&#x27;ll aggregate order totals per customer.</code></div></div></div><div class="step step-action">  <div class="step-header">    <span class="step-type">action</span>      </div>  <div class="step-body"><div><b>tool:</b> <code>execute_sql</code></div><details><summary>input (197 chars)</summary><pre>{&quot;query&quot;: &quot;SELECT c.name, SUM(oi.quantity * oi.price) AS ltv FROM customers c JOIN orders o ON o.customer_id=c.id JOIN order_items oi ON oi.order_id=o.id GROUP BY c.name ORDER BY ltv DESC LIMIT 1&quot;}</pre></details></div></div><div class="step step-observation">  <div class="step-header">    <span class="step-type">observation</span>      </div>  <div class="step-body"><div><b>output:</b> <code>[{&quot;name&quot;: &quot;Acme Corp&quot;, &quot;ltv&quot;: 128450.00}]</code></div></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>      </div>  <div class="step-body"><div><b>model:</b> <code>gpt-4o</code></div><div><b>input_tokens:</b> 488</div><div><b>output_tokens:</b> 142</div></div></div><div class="step step-plan">  <div class="step-header">    <span class="step-type">plan</span>      </div>  <div class="step-body"><div><b>plan:</b> <code>Acme Corp is your highest-LTV customer at $128,450.</code></div></div></div><div class="step step-answer">  <div class="step-header">    <span class="step-type">answer</span>      </div>  <div class="step-body"><div><b>text:</b> <code>Acme Corp is your highest-LTV customer at $128,450.</code></div></div></div>
+    <div class="step step-task">  <div class="step-header">    <span class="step-type">task</span>      </div>  <div class="step-body"><div><b>input:</b> <code>{&quot;messages&quot;: [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;What&#x27;s our MRR trend over the last quarter?&quot;}]}</code></div><div><b>name:</b> <code>LangGraph</code></div></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>      </div>  <div class="step-body"><div><b>input_tokens:</b> 348</div><div><b>output_tokens:</b> 92</div><div><b>model:</b> <code>claude-sonnet-4-5</code></div></div></div><div class="step step-action">  <div class="step-header">    <span class="step-type">action</span>      </div>  <div class="step-body"><div><b>tool:</b> <code>execute_sql</code></div><details><summary>input (189 chars)</summary><pre>{&quot;query&quot;: &quot;SELECT DATE_TRUNC(&#x27;month&#x27;, billing_date) AS month, SUM(monthly_amount) AS mrr FROM subscriptions WHERE billing_date &gt;= NOW() - INTERVAL &#x27;3 months&#x27; GROUP BY month ORDER BY month&quot;}</pre></details></div></div><div class="step step-observation">  <div class="step-header">    <span class="step-type">observation</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><details><summary>output (111 chars)</summary><pre>[{&quot;month&quot;: &quot;2026-03&quot;, &quot;mrr&quot;: 412800}, {&quot;month&quot;: &quot;2026-04&quot;, &quot;mrr&quot;: 438500}, {&quot;month&quot;: &quot;2026-05&quot;, &quot;mrr&quot;: 461200}]</pre></details></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><div><b>input_tokens:</b> 502</div><div><b>output_tokens:</b> 64</div><div><b>model:</b> <code>claude-sonnet-4-5</code></div></div></div><div class="step step-answer">  <div class="step-header">    <span class="step-type">answer</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><div><b>output:</b> <code>{&quot;answer&quot;: &quot;MRR grew from $412.8K (Mar) \u2192 $438.5K (Apr) \u2192 $461.2K (May). Quarter-over-quarter growth of ~11.7%, with consistent month-over-month acceleration.&quot;}</code></div></div></div>
   </div>
 </div>
 </body>

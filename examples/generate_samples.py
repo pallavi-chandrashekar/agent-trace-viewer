@@ -19,6 +19,7 @@ from agent_trace_viewer.adapters.anthropic import (
 )
 from agent_trace_viewer.adapters.openai import messages_to_trace as openai_to_trace
 from agent_trace_viewer.adapters.langchain import TraceCallbackHandler
+from agent_trace_viewer.adapters.langgraph import write_trace_from_events
 from agent_trace_viewer.viewer import render_html
 
 
@@ -145,12 +146,61 @@ def gen_langchain() -> None:
     print(f"  langchain.jsonl  {events_count} events")
 
 
+def gen_langgraph() -> None:
+    """A realistic LangGraph astream_events() stream — agent loop with one tool call."""
+    def ev(event, name, run_id, *, data=None, metadata=None, parent_ids=None):
+        return {
+            "event": event, "name": name, "run_id": run_id,
+            "tags": [], "metadata": metadata or {},
+            "data": data or {}, "parent_ids": parent_ids or [],
+        }
+
+    stream = [
+        ev("on_chain_start", "LangGraph", "root",
+           data={"input": {"messages": [{"role": "user", "content": "What's our MRR trend over the last quarter?"}]}}),
+        ev("on_chat_model_start", "ChatAnthropic", "llm1",
+           metadata={"ls_model_name": "claude-sonnet-4-5"}, parent_ids=["root"]),
+        ev("on_chat_model_end", "ChatAnthropic", "llm1",
+           metadata={"ls_model_name": "claude-sonnet-4-5"},
+           data={"output": {"usage_metadata": {"input_tokens": 348, "output_tokens": 92}}},
+           parent_ids=["root"]),
+        ev("on_tool_start", "execute_sql", "tool1",
+           data={"input": {
+               "query": "SELECT DATE_TRUNC('month', billing_date) AS month, "
+                        "SUM(monthly_amount) AS mrr FROM subscriptions "
+                        "WHERE billing_date >= NOW() - INTERVAL '3 months' "
+                        "GROUP BY month ORDER BY month"
+           }}, parent_ids=["root"]),
+        ev("on_tool_end", "execute_sql", "tool1",
+           data={"output": '[{"month": "2026-03", "mrr": 412800}, '
+                            '{"month": "2026-04", "mrr": 438500}, '
+                            '{"month": "2026-05", "mrr": 461200}]'},
+           parent_ids=["root"]),
+        ev("on_chat_model_start", "ChatAnthropic", "llm2",
+           metadata={"ls_model_name": "claude-sonnet-4-5"}, parent_ids=["root"]),
+        ev("on_chat_model_end", "ChatAnthropic", "llm2",
+           metadata={"ls_model_name": "claude-sonnet-4-5"},
+           data={"output": {"usage_metadata": {"input_tokens": 502, "output_tokens": 64}}},
+           parent_ids=["root"]),
+        ev("on_chain_end", "LangGraph", "root",
+           data={"output": {
+               "answer": "MRR grew from $412.8K (Mar) → $438.5K (Apr) → $461.2K (May). "
+                         "Quarter-over-quarter growth of ~11.7%, with consistent month-over-month acceleration."
+           }}),
+    ]
+    out = write_trace_from_events(stream, OUT_DIR / "langgraph.jsonl")
+    render_html(out, title="LangGraph — MRR analysis agent")
+    events_count = sum(1 for _ in open(out))
+    print(f"  langgraph.jsonl  {events_count} events")
+
+
 def main() -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     print(f"Writing samples to {OUT_DIR}/")
     gen_anthropic()
     gen_openai()
     gen_langchain()
+    gen_langgraph()
 
 
 if __name__ == "__main__":
