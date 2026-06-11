@@ -2,7 +2,7 @@
 
 > Zero-config, single-HTML viewer for any LLM agent trace.
 
-Drop a JSONL trace in, get a self-contained HTML page out. Works with **LangChain**, **LangGraph**, **AgentKit**, and raw **Claude** / **OpenAI** tool-use streams (smolagents next). No service to run, no infrastructure to set up.
+Drop a JSONL trace in, get a self-contained HTML page out. Works with **LangChain**, **LangGraph**, **smolagents**, **AgentKit**, and raw **Claude** / **OpenAI** tool-use streams. No service to run, no infrastructure to set up.
 
 ```bash
 pip install agent-trace-viewer
@@ -99,14 +99,32 @@ write_trace_from_events(events, "run.jsonl")
 
 No `langgraph` install required — the adapter only inspects the event dict shape.
 
+### With smolagents
+
+```python
+from smolagents import CodeAgent
+from agent_trace_viewer.adapters.smolagents import agent_to_trace
+from agent_trace_viewer.adapters.anthropic import write_trace_jsonl
+
+agent = CodeAgent(tools=[...], model=model)
+agent.run("What was our top product last month?")
+
+events = agent_to_trace(agent)
+write_trace_jsonl(events, "run.jsonl")
+```
+
+No `smolagents` install required by this package — the adapter only introspects
+the step objects' attributes, so it stays compatible across smolagents versions.
+
 ### See real outputs first
 
-The repo ships four rendered sample traces — open these in your browser before installing anything:
+The repo ships five rendered sample traces — open these in your browser before installing anything:
 
 - [`examples/sample_traces/anthropic.html`](examples/sample_traces/anthropic.html)
 - [`examples/sample_traces/openai.html`](examples/sample_traces/openai.html)
 - [`examples/sample_traces/langchain.html`](examples/sample_traces/langchain.html)
 - [`examples/sample_traces/langgraph.html`](examples/sample_traces/langgraph.html)
+- [`examples/sample_traces/smolagents.html`](examples/sample_traces/smolagents.html)
 
 ## The Trace v1 schema
 
@@ -133,7 +151,7 @@ Full spec: [`docs/trace-format.md`](docs/trace-format.md).
 | Raw OpenAI | `agent_trace_viewer.adapters.openai` | ✅ shipping |
 | LangChain | `agent_trace_viewer.adapters.langchain` | ✅ shipping |
 | LangGraph | `agent_trace_viewer.adapters.langgraph` | ✅ shipping |
-| smolagents | `agent_trace_viewer.adapters.smolagents` | 🚧 next |
+| smolagents | `agent_trace_viewer.adapters.smolagents` | ✅ shipping |
 
 ## CLI
 
@@ -150,7 +168,7 @@ Options:
 
 ## Status
 
-**v0.1 — under active development.** The viewer, CLI, and adapters for LangChain / LangGraph / raw Anthropic / raw OpenAI all ship now (53 tests passing). smolagents adapter lands next.
+**v0.1 — release candidate.** Viewer, CLI, and adapters for LangChain / LangGraph / smolagents / raw Anthropic / raw OpenAI all ship (65 tests passing, 5 sample traces). PyPI publish is the next step.
 
 ## License
 

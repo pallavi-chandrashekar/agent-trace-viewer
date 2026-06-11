@@ -146,6 +146,94 @@ def gen_langchain() -> None:
     print(f"  langchain.jsonl  {events_count} events")
 
 
+def gen_smolagents() -> None:
+    """A realistic smolagents memory trace — DataAssistant agent with 2 tool steps."""
+    from dataclasses import dataclass, field
+    from typing import Any
+
+    from agent_trace_viewer.adapters.smolagents import memory_to_trace
+
+    @dataclass
+    class TokenUsage:
+        input_tokens: int = 0
+        output_tokens: int = 0
+
+    @dataclass
+    class ChatMessage:
+        content: Any = None
+        model_id: str | None = None
+
+    @dataclass
+    class ToolCall:
+        name: str
+        arguments: Any = None
+
+    @dataclass
+    class PlanningStep:
+        plan: str = ""
+        model_output_message: ChatMessage | None = None
+        token_usage: TokenUsage = field(default_factory=TokenUsage)
+        step_duration: float = 0.0
+
+    @dataclass
+    class ActionStep:
+        model_output_message: ChatMessage | None = None
+        model_output: str = ""
+        tool_calls: list[ToolCall] = field(default_factory=list)
+        observations: str = ""
+        error: Any = None
+        token_usage: TokenUsage = field(default_factory=TokenUsage)
+        step_duration: float = 0.0
+
+    @dataclass
+    class FinalAnswerStep:
+        action_output: Any = None
+
+    steps = [
+        PlanningStep(
+            plan="Inspect the schema first, then aggregate revenue per product.",
+            model_output_message=ChatMessage(content="...", model_id="claude-sonnet-4-5"),
+            token_usage=TokenUsage(input_tokens=212, output_tokens=68),
+            step_duration=1.24,
+        ),
+        ActionStep(
+            model_output_message=ChatMessage(
+                content="I'll list tables first to see what's available.",
+                model_id="claude-sonnet-4-5",
+            ),
+            tool_calls=[ToolCall(name="list_tables", arguments={})],
+            observations="['customers', 'orders', 'order_items', 'products']",
+            token_usage=TokenUsage(input_tokens=298, output_tokens=42),
+            step_duration=0.88,
+        ),
+        ActionStep(
+            model_output_message=ChatMessage(
+                content="Good. Now I'll join orders ↔ order_items ↔ products and aggregate.",
+                model_id="claude-sonnet-4-5",
+            ),
+            tool_calls=[ToolCall(name="execute_sql", arguments={
+                "query": "SELECT p.name, SUM(oi.quantity * oi.price) AS revenue "
+                         "FROM order_items oi JOIN products p ON p.id = oi.product_id "
+                         "JOIN orders o ON o.id = oi.order_id "
+                         "WHERE o.order_date >= date('now', '-1 month') "
+                         "GROUP BY p.name ORDER BY revenue DESC LIMIT 1"
+            })],
+            observations='[{"name": "Premium Plan", "revenue": 45231.00}]',
+            token_usage=TokenUsage(input_tokens=412, output_tokens=88),
+            step_duration=1.42,
+        ),
+        FinalAnswerStep(
+            action_output="The top product last month was 'Premium Plan' with $45,231 in revenue."
+        ),
+    ]
+
+    events = memory_to_trace(steps, task="What was our top product last month?")
+    from agent_trace_viewer.adapters.anthropic import write_trace_jsonl
+    jsonl = write_trace_jsonl(events, OUT_DIR / "smolagents.jsonl")
+    render_html(jsonl, title="smolagents — DataAssistant agent")
+    print(f"  smolagents.jsonl {len(events)} events")
+
+
 def gen_langgraph() -> None:
     """A realistic LangGraph astream_events() stream — agent loop with one tool call."""
     def ev(event, name, run_id, *, data=None, metadata=None, parent_ids=None):
@@ -201,6 +289,7 @@ def main() -> None:
     gen_openai()
     gen_langchain()
     gen_langgraph()
+    gen_smolagents()
 
 
 if __name__ == "__main__":

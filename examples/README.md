@@ -10,6 +10,7 @@ Open any of these in a browser to see what `agent-trace-viewer` produces — no 
 | Raw OpenAI (DataAssistant) | [`sample_traces/openai.jsonl`](sample_traces/openai.jsonl) | [`sample_traces/openai.html`](sample_traces/openai.html) |
 | LangChain agent | [`sample_traces/langchain.jsonl`](sample_traces/langchain.jsonl) | [`sample_traces/langchain.html`](sample_traces/langchain.html) |
 | LangGraph (MRR analysis) | [`sample_traces/langgraph.jsonl`](sample_traces/langgraph.jsonl) | [`sample_traces/langgraph.html`](sample_traces/langgraph.html) |
+| smolagents (DataAssistant) | [`sample_traces/smolagents.jsonl`](sample_traces/smolagents.jsonl) | [`sample_traces/smolagents.html`](sample_traces/smolagents.html) |
 
 ## Regenerate samples
 
