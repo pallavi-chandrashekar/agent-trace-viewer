@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>LangChain — DataAssistant agent · langchain</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    margin: 0; padding: 32px; background: #fafafa; color: #1a1a1a;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; font-weight: 600; }
+  .meta {
+    color: #666; font-size: 13px; margin-bottom: 24px;
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .meta span { white-space: nowrap; }
+  .meta b { color: #1a1a1a; font-weight: 600; }
+  .summary {
+    background: white; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 16px;
+    display: flex; gap: 32px; flex-wrap: wrap;
+  }
+  .summary div b { display: block; font-size: 18px; }
+  .summary div span { color: #888; font-size: 12px; }
+  .timeline { display: flex; flex-direction: column; gap: 8px; }
+  .step {
+    background: white; border: 1px solid #e5e5e5; border-radius: 8px;
+    padding: 12px 16px; position: relative;
+    border-left: 3px solid #ccc;
+  }
+  .step-task         { border-left-color: #6366f1; }
+  .step-plan         { border-left-color: #f59e0b; }
+  .step-action       { border-left-color: #3b82f6; }
+  .step-observation  { border-left-color: #94a3b8; }
+  .step-reflection   { border-left-color: #a855f7; }
+  .step-answer       { border-left-color: #22c55e; }
+  .step-llm_call     { border-left-color: #10b981; opacity: 0.7; }
+  .step-error        { border-left-color: #ef4444; background: #fef2f2; }
+  .step-task_start, .step-task_end { border-left-color: #d4d4d4; opacity: 0.6; }
+
+  .step-header {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; color: #666; margin-bottom: 4px;
+  }
+  .step-type {
+    font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em;
+    font-size: 11px;
+  }
+  .step-task .step-type         { color: #6366f1; }
+  .step-plan .step-type         { color: #f59e0b; }
+  .step-action .step-type       { color: #3b82f6; }
+  .step-observation .step-type  { color: #64748b; }
+  .step-reflection .step-type   { color: #a855f7; }
+  .step-answer .step-type       { color: #16a34a; }
+  .step-llm_call .step-type     { color: #10b981; }
+  .step-error .step-type        { color: #dc2626; }
+
+  .step-body {
+    font-size: 13px; line-height: 1.5; color: #1a1a1a;
+    word-wrap: break-word;
+  }
+  .step-body pre {
+    background: #f5f5f5; border: 1px solid #e5e5e5; border-radius: 4px;
+    padding: 8px 10px; margin: 4px 0 0 0; font-size: 12px;
+    overflow-x: auto; white-space: pre-wrap; max-height: 280px;
+  }
+  .step-body code {
+    background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12px;
+  }
+  .step-body details { margin-top: 4px; }
+  .step-body summary {
+    cursor: pointer; color: #666; font-size: 12px; user-select: none;
+  }
+  .step-body summary:hover { color: #1a1a1a; }
+  .step-meta { color: #888; font-size: 11px; margin-left: 8px; }
+  .badge {
+    display: inline-block; padding: 1px 6px; border-radius: 3px;
+    background: #f0f0f0; color: #555; font-size: 11px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>LangChain — DataAssistant agent</h1>
+  <div class="meta">
+    <span>run id <b>langchain</b></span>
+    <span>started <b>2026-06-11T21:22:45+00:00</b></span>
+    <span>10 events</span>
+  </div>
+  <div class="summary">
+    <div><b>8</b><span>steps</span></div><div><b>1</b><span>LLM calls</span></div><div><b>2</b><span>actions</span></div><div><b>412</b><span>input tokens</span></div><div><b>98</b><span>output tokens</span></div>
+  </div>
+  <div class="timeline">
+    <div class="step step-task">  <div class="step-header">    <span class="step-type">task</span>      </div>  <div class="step-body"><div><b>input:</b> <code>{&#x27;input&#x27;: &#x27;How many active customers do we have?&#x27;}</code></div></div></div><div class="step step-llm_call">  <div class="step-header">    <span class="step-type">llm_call</span>      </div>  <div class="step-body"><div><b>input_tokens:</b> 412</div><div><b>output_tokens:</b> 98</div><div><b>model:</b> <code>claude-sonnet-4-5</code></div></div></div><div class="step step-plan">  <div class="step-header">    <span class="step-type">plan</span>      </div>  <div class="step-body"><div><b>plan:</b> <code>I should check the schema before querying.</code></div></div></div><div class="step step-action">  <div class="step-header">    <span class="step-type">action</span>      </div>  <div class="step-body"><div><b>tool:</b> <code>list_tables</code></div><div><b>input:</b> <code></code></div></div></div><div class="step step-observation">  <div class="step-header">    <span class="step-type">observation</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><div><b>output:</b> <code>[&#x27;customers&#x27;, &#x27;orders&#x27;, &#x27;subscriptions&#x27;]</code></div></div></div><div class="step step-plan">  <div class="step-header">    <span class="step-type">plan</span>      </div>  <div class="step-body"><div><b>plan:</b> <code>Now I&#x27;ll count active customers.</code></div></div></div><div class="step step-action">  <div class="step-header">    <span class="step-type">action</span>      </div>  <div class="step-body"><div><b>tool:</b> <code>execute_sql</code></div><div><b>input:</b> <code>SELECT COUNT(*) FROM customers WHERE active = 1</code></div></div></div><div class="step step-observation">  <div class="step-header">    <span class="step-type">observation</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><div><b>output:</b> <code>[(1247,)]</code></div></div></div><div class="step step-answer">  <div class="step-header">    <span class="step-type">answer</span>      </div>  <div class="step-body"><div><b>output:</b> <code>{&#x27;output&#x27;: &#x27;You have 1,247 active customers.&#x27;}</code></div></div></div><div class="step step-answer">  <div class="step-header">    <span class="step-type">answer</span>    <span class="step-meta">0ms</span>  </div>  <div class="step-body"><div><b>output:</b> <code>{&#x27;output&#x27;: &#x27;You have 1,247 active customers.&#x27;}</code></div></div></div>
+  </div>
+</div>
+</body>
+</html>

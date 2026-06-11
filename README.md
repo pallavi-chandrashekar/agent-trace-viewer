@@ -41,13 +41,49 @@ render_html("path/to/run.jsonl", output_path="report.html")
 ```python
 from agent_trace_viewer.adapters.langchain import TraceCallbackHandler
 
-callback = TraceCallbackHandler("run.jsonl")
-agent.invoke(input, config={"callbacks": [callback]})
+with TraceCallbackHandler("run.jsonl") as cb:
+    agent.invoke({"input": "..."}, config={"callbacks": [cb]})
+
 # Then:
 #   agent-trace run.jsonl --out report.html
 ```
 
-*(LangGraph, smolagents, raw Claude/OpenAI adapters — see `docs/adapters.md`.)*
+Install: `pip install "agent-trace-viewer[langchain]"`.
+
+### With raw Anthropic SDK
+
+```python
+from anthropic import Anthropic
+from agent_trace_viewer.adapters.anthropic import messages_to_trace, write_trace_jsonl
+
+client = Anthropic()
+messages = [{"role": "user", "content": "..."}]
+# ... run your tool-use loop, accumulating turns into `messages` ...
+events = messages_to_trace(messages, model="claude-sonnet-4-5")
+write_trace_jsonl(events, "run.jsonl")
+```
+
+### With raw OpenAI SDK
+
+```python
+from openai import OpenAI
+from agent_trace_viewer.adapters.openai import messages_to_trace
+from agent_trace_viewer.adapters.anthropic import write_trace_jsonl
+
+client = OpenAI()
+messages = [{"role": "user", "content": "..."}]
+# ... run your function-calling loop, accumulating into `messages` ...
+events = messages_to_trace(messages, model="gpt-4o")
+write_trace_jsonl(events, "run.jsonl")
+```
+
+### See real outputs first
+
+The repo ships three rendered sample traces — open these in your browser before installing anything:
+
+- [`examples/sample_traces/anthropic.html`](examples/sample_traces/anthropic.html)
+- [`examples/sample_traces/openai.html`](examples/sample_traces/openai.html)
+- [`examples/sample_traces/langchain.html`](examples/sample_traces/langchain.html)
 
 ## The Trace v1 schema
 
@@ -69,21 +105,21 @@ Full spec: [`docs/trace-format.md`](docs/trace-format.md).
 
 | Source | Adapter | Status |
 |---|---|---|
-| AgentKit | Native (AgentKit already writes Trace v1) | ✅ |
-| LangChain | `agent_trace_viewer.adapters.langchain` | 🚧 |
-| LangGraph | `agent_trace_viewer.adapters.langgraph` | 🚧 |
-| smolagents | `agent_trace_viewer.adapters.smolagents` | 🚧 |
-| Raw Anthropic | `agent_trace_viewer.adapters.anthropic` | 🚧 |
-| Raw OpenAI | `agent_trace_viewer.adapters.openai` | 🚧 |
-
-(🚧 = MVP target; lands with v0.1.)
+| AgentKit | Native (already writes Trace v1) | ✅ shipping |
+| Raw Anthropic | `agent_trace_viewer.adapters.anthropic` | ✅ shipping |
+| Raw OpenAI | `agent_trace_viewer.adapters.openai` | ✅ shipping |
+| LangChain | `agent_trace_viewer.adapters.langchain` | ✅ shipping |
+| LangGraph | `agent_trace_viewer.adapters.langgraph` | 🚧 next |
+| smolagents | `agent_trace_viewer.adapters.smolagents` | 🚧 next |
 
 ## CLI
 
 ```
 agent-trace <trace.jsonl> [--out OUTPUT.html] [--title TITLE]
+agent-trace --validate <trace.jsonl>
 
 Options:
+  --validate      Check the file against Trace v1 (exit 0 = valid, 1 = errors)
   --out PATH      Output HTML file (default: <trace>.html alongside input)
   --title TEXT    Page title (default: "Agent trace")
   -h, --help      Show this message and exit
@@ -91,7 +127,7 @@ Options:
 
 ## Status
 
-**v0.1 — under active development.** The viewer is stable (extracted from AgentKit, well-tested). Adapters are landing this weekend.
+**v0.1 — under active development.** The viewer, CLI, and adapters for LangChain / raw Anthropic / raw OpenAI all ship now (40 tests passing). LangGraph and smolagents adapters land next.
 
 ## License
 
